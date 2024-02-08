@@ -1,5 +1,8 @@
 <?php
 //?-----------Laravel --------------------------------------
+
+
+
 //!--Database Connexion (.env file):
 DB_CONNECTION=mysql
 DB_HOST=localhost
@@ -9,7 +12,15 @@ DB_USERNAME=root
 DB_PASSWORD=
 
 
+
+
 //!--Create Tables (Standard):
+```
+-In Laravel, to create a table, you need to create a migration representing all table columns, constraints, and foreign keys.
+-In addition to the migration, we can create a model to interact with the table data.
+ The model serves as an intermediary between the application and the database(Defining Relationships [one-to-one, one-to-many, many-to-many] ),
+  allowing you to perform CRUD operations (Create, Read, Update, Delete) on the database table. 
+```
 -1:Create a Migration (Respect Naming) :
         In Terminal :   php artisan make:migration create_users_table
 -2:Structure (Inside Database/Migrations) :
@@ -41,6 +52,9 @@ DB_PASSWORD=
         ````````````````````````````````````````````````````````````````````````````````````
 -3:Creating Table In Database :
         In Terminal :   php artisan migrate
+
+
+
 
 
 //!Create Tables (Relational):
@@ -77,6 +91,98 @@ DB_PASSWORD=
 -3:Creating Tables In Database :
         In Terminal :   php artisan migrate
 
+-4:Crating Models(Defining Relations):
+        In Terminal : php artisan make:model User
+                      php artisan make:model Post
+
+
+-5:Models Structures(In app/Models) :
+        ````````````````````````````````````````````````````````````````````````````````
+        //User.php
+        namespace App\Models;
+
+        use Illuminate\Database\Eloquent\Model;
+
+        class User extends Model
+        {
+            public function posts()
+            {
+                return $this->hasMany(Post::class); //Defining Relation Cardinalite
+            }
+        }
+
+        //?//?//?//?////////////////////////////////////////////////////////////////
+
+        //Post.php
+        namespace App\Models;
+
+        use Illuminate\Database\Eloquent\Model;
+
+        class Post extends Model
+        {
+            public function user()
+            {
+                return $this->belongsTo(User::class);
+            }
+        }
+
+
+        ````````````````````````````````````````````````````````````````````````````````````
+
+//!CRUD:
+```
+-In Laravel We Have Controllers(Controllers) & Views(Views) ,The Controllers are responsible for handling user requests(CRUD,Search,Other Functions)
+, and the Views are responsible for displaying the data.
+```
+1-Read(Regular):
+-- Create A Controller :
+        In Terminal : php artisan make:controller PostController
+--Structure(app/Http/Controllers)
+    ````````````````````````````````````````````````````````````````````````````````````
+    namespace App\Http\Controllers;
+
+    use App\Models\Post;
+    use Illuminate\Http\Request;
+
+    class PostController extends Controller
+    {
+        public function index()
+        {
+            $posts = Post::all(); // Fetch all posts from the database (Like Fetch query)
+            return view('posts.index', ['posts' => $posts]); //index method fetches all posts from the posts table(Like Excute query)
+        }
+    }
+
+    ````````````````````````````````````````````````````````````````````````````````````
+--Define a Route(routes/web.php)
+    ````````````````````````````````````````````````````````````````````````````````````
+    use App\Http\Controllers\PostController; //importing controller
+
+    Route::get('/posts', [PostController::class, 'index']); //Retrieve all posts With A Get Request
+
+    ````````````````````````````````````````````````````````````````````````````````````
+
+--Create a Blade Template
+    ````````````````````````````````````````````````````````````````````````````````````
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Posts</title>
+        </head>
+        <body>
+            <h1>Posts</h1>
+            <ul>
+                @foreach($posts as $post)
+                    <li>{{ $post->title }}</li>
+                    <p>{{ $post->content }}</p>
+                @endforeach
+            </ul>
+        </body>
+        </html>
+
+    ````````````````````````````````````````````````````````````````````````````````````
 
 
 
